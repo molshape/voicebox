@@ -13,9 +13,8 @@ COPY package.json bun.lock CHANGELOG.md ./
 COPY app/ ./app/
 COPY web/ ./web/
 
-# Strip workspaces not needed for web build, and fix trailing comma
-RUN sed -i '/"tauri"/d; /"landing"/d' package.json && \
-    sed -i -z 's/,\n  ]/\n  ]/' package.json
+# Strip workspaces not needed for web build without risking invalid JSON
+RUN bun -e 'const fs = require("fs"); const pkgPath = "package.json"; const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8")); pkg.workspaces = (pkg.workspaces || []).filter((name) => !["tauri", "landing"].includes(name)); fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + "\n");'
 RUN bun install --no-save
 # Build frontend (skip tsc — upstream has pre-existing type errors)
 RUN cd web && bunx --bun vite build

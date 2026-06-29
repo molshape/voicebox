@@ -1,25 +1,24 @@
 services:
   voicebox:
     build: .
+    image: voicebox:local
     container_name: voicebox
     restart: unless-stopped
 
     ports:
-      # Host-side moved to 17600 so the dev/installed Voicebox can keep 17493.
-      # Container still listens on its native port internally.
-      - "127.0.0.1:17600:17493"
+      - "17493:17493"
 
     volumes:
       # Bind-mount for generated audio (customize the host path as needed)
       # Host side:      ./output/
       # Container side: /app/data/generations/
-      - ./output:/app/data/generations
+      - ${APP_DATA_DIR}/output:/app/data/generations
 
-      # Named volume for profiles, DB, cache (persists across container restarts)
-      - voicebox-data:/app/data
+      # Bind-mount for profiles, DB, cache (persists across container restarts)
+      - ${APP_DATA_DIR}/voicebox-data:/app/data
 
       # HuggingFace model cache (so models aren't re-downloaded on rebuild)
-      - huggingface-cache:/home/voicebox/.cache/huggingface
+      - ${APP_DATA_DIR}/huggingface-cache:/home/voicebox/.cache/huggingface
 
     environment:
       - LOG_LEVEL=info
@@ -37,7 +36,3 @@ services:
 networks:
   voicebox-net:
     driver: bridge
-
-volumes:
-  voicebox-data:
-  huggingface-cache:
