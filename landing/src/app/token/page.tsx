@@ -12,6 +12,7 @@ import type {Metadata} from "next";
 import {Footer} from "@/components/Footer";
 import {Navbar} from "@/components/Navbar";
 import {TokenSection} from "@/components/TokenSection";
+import {TokenStatsSection} from "@/components/TokenStats";
 import {
 	TOKEN_PROOFS,
 	TOKEN_SOLSCAN_URL,
@@ -29,6 +30,10 @@ export const metadata: Metadata = {
 		images: [{url: "/og.webp", width: 1200, height: 630}],
 	},
 };
+
+// Re-fetch live on-chain stats at most every 10 minutes (matches the server
+// cache in token-stats.ts). Keeps the page static-fast while staying fresh.
+export const revalidate = 600;
 
 const USE_OF_FUNDS = [
 	{
@@ -76,6 +81,9 @@ export default function TokenPage() {
 			    header, contract address, and buy CTA. */}
 			<main className="pt-16">
 				<TokenSection />
+
+				{/* ── Live on-chain stats ──────────────────────────────────── */}
+				<TokenStatsSection />
 
 				{/* ── Why a token ──────────────────────────────────────────── */}
 				<section className="border-t border-border py-20">
@@ -140,72 +148,6 @@ export default function TokenPage() {
 								Generate on the go, keep your captures and generations safe, and
 								pick up on any device.
 							</p>
-						</div>
-					</div>
-				</section>
-
-				{/* ── On-chain transparency ────────────────────────────────── */}
-				<section className="border-t border-border py-20">
-					<div className="mx-auto max-w-4xl px-6">
-						<div className="text-center mb-12">
-							<div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-accent mb-4">
-								On-chain transparency
-							</div>
-							<h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
-								Don't trust — verify.
-							</h2>
-							<p className="text-muted-foreground max-w-2xl mx-auto mt-4">
-								Liquidity is locked and supply is reduced through ongoing
-								buyback &amp; burns. Every action is on-chain and linked here, so
-								you never have to take my word for it.
-							</p>
-						</div>
-
-						<div className="grid gap-4 sm:grid-cols-3">
-							{TOKEN_PROOFS.map((proof, i) => {
-								const Icon = proof.kind === "lock" ? Lock : Flame;
-								return (
-									<div
-										key={`${proof.label}-${i}`}
-										className="flex flex-col rounded-xl border border-border bg-card/40 backdrop-blur-sm p-6"
-									>
-										<Icon className="h-5 w-5 text-accent mb-3" />
-										<h3 className="text-[15px] font-semibold text-foreground mb-2">
-											{proof.label}
-										</h3>
-										<p className="text-sm leading-relaxed text-muted-foreground flex-1">
-											{proof.detail}
-										</p>
-										{proof.txUrl ? (
-											<a
-												href={proof.txUrl}
-												target="_blank"
-												rel="noopener noreferrer"
-												className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"
-											>
-												View on Solscan
-												<ArrowUpRight className="h-3.5 w-3.5" />
-											</a>
-										) : (
-											<span className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground/60">
-												Proof link pending
-											</span>
-										)}
-									</div>
-								);
-							})}
-						</div>
-
-						<div className="mt-6 text-center">
-							<a
-								href={TOKEN_SOLSCAN_URL}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-							>
-								Inspect supply &amp; holders on Solscan
-								<ArrowUpRight className="h-4 w-4" />
-							</a>
 						</div>
 					</div>
 				</section>
