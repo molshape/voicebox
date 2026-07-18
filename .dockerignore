@@ -8,7 +8,7 @@ tauri/
 landing/
 docs/
 mlx-test/
-scripts/
+# scripts/  # removed because it contains scripts that are required for the container build (Dockerfile)
 
 # Dependencies & build artifacts (rebuilt in Docker)
 node_modules/
